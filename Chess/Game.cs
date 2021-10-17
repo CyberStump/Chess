@@ -280,73 +280,56 @@ namespace Chess
             return false; 
         }
 
-        // TODO:
+        
         private bool CheckAnyPossibleMoves(Figure figure, int y, int x) 
         {
             if (figure != null)
             {
                 if (figure.Symbol != 'k') // If figure isn't knight (horse).
                 {
-                    for (int i = -1; i < 2; i++)
+                    for (int j = -1; j < 2; j++)
                     {
-                        for (int k = -1; k < 2; k+=2)
+                        for (int i = -1; i < 2; i++)
                         {
-                            if( x + i > -1 && x + i < 8 && y + k > -1 && y + k < 8 )
+                            if(j != 0 && i != 0)
                             {
-                                if (Board[y + k, x + i] == null) return true;
-                                else if (Board[y + k, x + i].Symbol != CurrentColorMove) return true;
-                            }
-                        }
-                    }
-                    for (int i = -1; i < 2; i += 2)
-                    {
-                        if (x + i > -1 && x + i < 8)
-                        {
-                            if (Board[y, x + i] == null) return true;
-                            else if (Board[y, x + i].Symbol != CurrentColorMove) return true;
+                                if (x + j > -1 && x + j < 8 && y + i > -1 && y + i < 8)
+                                {
+                                    if (Board[y + i, x + j] == null) return true;
+                                    else if (Board[y + i, x + j].ColorSign != CurrentColorMove) return true;
+                                }
+                            }                            
                         }
                     }
                 }
-
                 else if (figure.Symbol == 'k')
                 {
-                    if (y > 1 || y < 6 || x > 1 || x < 6) // ????
+                    for (int j = -1; j < 2; j += 2)
                     {
-                        for (int i = -1; i < 2; i += 2)
+                        for (int i = -2; i < 3; i += 4)
                         {
-                            for (int k = -2; k < 3; k += 4)
+                            if (x + j > -1 && x + j < 8 && y + i > -1 && y + i < 8)
                             {
-                                if (Board[y + k, x + i] == null) {
-                                    return true;
-                                }
-                                else if (Board[y + k, x + i].Symbol != CurrentColorMove) {
-                                    return true;
-                                }
+                                if (Board[y + i, x + j] == null) return true;
+                                else if (Board[y + i, x + j].ColorSign != CurrentColorMove) return true;
                             }
                         }
                     }
-                    else if (y - 1 > -1 && y + 1 < 8 && x - 2 > -1 && x + 2 < 8)
+                    for (int j = -2; j < 3; j += 4)
                     {
                         for (int i = -1; i < 2; i += 2)
                         {
-                            for (int k = -2; k < 3; k += 4)
+                            if (x + j > -1 && x + j < 8 && y + i > -1 && y + i < 8)
                             {
-                                if (Board[y + i, x + k] == null) {
-                                    return true;
-                                }
-                                else if (Board[y + i, x + k].Symbol != CurrentColorMove) {
-                                    return true;
-                                }
+                                if (Board[y + i, x + j] == null) return true;
+                                else if (Board[y + i, x + j].ColorSign != CurrentColorMove) return true;
                             }
                         }
                     }
-                    else return false;
-                    
                 }
             }
-            else throw new Exception(" Null object in CheckAnyMovePosition() ");
-            
-            
+            else throw new NullReferenceException();
+                        
             return false;
         }
 
