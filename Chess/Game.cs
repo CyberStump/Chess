@@ -4,7 +4,7 @@ using System.Threading;
 
 namespace Chess
 {
-    class Game
+    class Game : API
     {
         // Form for recording data about figures:
         // {sign of figure k - knight, Q - queen, etc.}{Color: Black - B, White - W}{i absolute coordinate}{j absolute coordinate}
@@ -33,7 +33,6 @@ namespace Chess
 
         private int BoardStartCoordX   = 50;
         private int BoardStartCoordY   = 10;
-        //private int BoardVisibleSize = 1;
 
         private DateTime FirstPlayerTime = DateTime.MinValue;
         private DataManager GamesDataManager = new DataManager("games.txt");
@@ -44,97 +43,102 @@ namespace Chess
         public Game(bool newGame)
         {            
             Board = new Figure[8, 8];
+            bool win = false;
 
             if (newGame) {
                 CreateNewBoard();
-                SynchronizeBoardFromGameData();
+                WriteBoardToGameData();
             }
             else {
                 SynchronizeBoardFromGameData();
             }            
             DrawBoard();
 
-            while (!CheckWin())
+            while (MakeMove())
             {
-                MakeMove();
+                win = CheckWin();                
+            }
+            if (win)
+            {
+
             }
         }
 
 
-        private void MakeMove()
+        private bool MakeMove()
         {
             DateTime startMoveTime = DateTime.Now; // Time of start a move.
-            ConsoleKey pressedKey;  
 
             int[] FigureCoord   = new int[2];  // Coordinates of selected figure.
             int[] MoveCellCoord = new int[2];  // Coordinates of selected cell to move figure.
-            int yBoardMin = 0,
-                yBoardMax = 7;
             bool selected;
             bool continueMove = true;
-            string selectedFigure;
-
-            switch (CurrentColorMove)
-            {
-                case 'W': // White move
-                    TargetedCellY = 6;
-                    break;
-                case 'B': // Black move
-                    TargetedCellY = 1;
-                    break;
-            }
+            string selectedFigure = "";
 
             selected = false; // crunch?
             do // Select figure to move
             {
-                Program.WriteAt(BoardStartCoordX + 25, BoardStartCoordY, "Выберите фигуру");
+                WriteAt(BoardStartCoordX + 22, BoardStartCoordY + 2, Program.dic_LanguageDic["selectfigure"]);
                 
                 FigureCoord = SelectCell();
-                selectedFigure = TargetedCellSign;
-                if (Board[FigureCoord[0], FigureCoord[1]] != null) 
+                if (FigureCoord[0] != -1)
                 {
-                    if(Board[FigureCoord[0], FigureCoord[1]].ColorSign == CurrentColorMove
-                    && CheckAnyPossibleMoves(Board[FigureCoord[0], FigureCoord[1]], FigureCoord[0], FigureCoord[1]))
-                        selected = true;
+                    selectedFigure = TargetedCellSign;
+                    if (Board[FigureCoord[0], FigureCoord[1]] != null)
+                    {
+                        if (Board[FigureCoord[0], FigureCoord[1]].ColorSign == CurrentColorMove
+                        && CheckAnyPossibleMoves(Board[FigureCoord[0], FigureCoord[1]], FigureCoord[0], FigureCoord[1]))
+                            selected = true;
+                    }
                 }
-                else if(FigureCoord[0] == -1) {
+                else
+                {
                     continueMove = false;
                 }
             }
-            while (!selected);
+            while (!selected && continueMove);
 
 
             selected = false; // crunch?
             if (continueMove)
             {
-                do // Select cell to move figure at
+                WriteAtColored(BoardStartCoordX + TargetedCellX * 2,
+                               BoardStartCoordY + 8,
+                               "^", ConsoleColor.Green);
+                WriteAtColored(BoardStartCoordX + 16,
+                               BoardStartCoordY + TargetedCellY,
+                               "<", ConsoleColor.Green);
+                do // Select cell to move figure at.
                 {
-                    Program.WriteAt(BoardStartCoordX + 25, BoardStartCoordY, "<- " + selectedFigure + " Выберите клетку для хода");
+                    WriteAt(BoardStartCoordX + 22, BoardStartCoordY + 2, "Выберите клетку для хода");
+                    WriteAt(BoardStartCoordX + 24, BoardStartCoordY + 4, " <- " + selectedFigure);
+
                     MoveCellCoord = SelectCell();
                     if (MoveCellCoord[0] != -1)
                     {
                         if (CheckMove(
                         Board[FigureCoord[0], FigureCoord[1]],
-                        FigureCoord[0], FigureCoord[1], 
+                        FigureCoord[0], FigureCoord[1],
                         MoveCellCoord[0], MoveCellCoord[1]))
                         {
                             Board[MoveCellCoord[0], MoveCellCoord[1]] = Board[FigureCoord[0], FigureCoord[1]];
                             Board[FigureCoord[0], FigureCoord[1]] = null;
                             selected = true;
                             MoveCount++;
+                            WriteBoardToGameData();
                             DrawBoard();
                         }
-                            
+
                     }
                     else
                     {
                         continueMove = false;
+                        selected = true;
                     }
                 }
                 while (!selected);
             }
-            
-
+            return continueMove;
         }
 
 
@@ -188,13 +192,14 @@ namespace Chess
 
         public void DrawBoard()
         {
-            Program.ClearScreen();
+            ClearScreen();
+            WriteAtColored(1, 29, Program.AppVersion, ConsoleColor.DarkGray);
             for (int i = 0; i < 8; i++)
             {
-                Program.WriteAt(BoardStartCoordX - 2, BoardStartCoordY + i, CellNames_Letters[i].ToString());
+                WriteAt(BoardStartCoordX - 2, BoardStartCoordY + i, CellNames_Letters[i].ToString());
                 for (int j = 0; j < 8; j++)
                 {
-                    Program.WriteAt(BoardStartCoordX + j * 2, BoardStartCoordY - 1, CellNames_Numbers[j].ToString());
+                    WriteAt(BoardStartCoordX + j * 2, BoardStartCoordY - 1, CellNames_Numbers[j].ToString());
                     if ((i + j + 1) % 2 == 0) Console.BackgroundColor = ConsoleColor.DarkGray;
                     if ((i + j + 1) % 2 != 0) Console.BackgroundColor = ConsoleColor.Red;
 
@@ -203,7 +208,7 @@ namespace Chess
                         Board[i, j].Draw();
                     }
                     else Console.Write("  ");
-                    Program.SetDefaultConsoleColors();
+                    SetConsoleColors(Program.DefaultForegroundColor, Program.DefaultBackgroundColor);
                 }
             }            
             //Program.WriteAt(40, 6, TargetedCell);
@@ -217,8 +222,12 @@ namespace Chess
             string s_gameData = GamesDataManager.Read();
             int moveCountPosIndex = s_gameData.IndexOf('c');
             
-            int.TryParse( s_gameData.Substring(moveCountPosIndex + 1, s_gameData.IndexOf('/') - moveCountPosIndex - 1),
-                          out MoveCount );
+            if(!int.TryParse(s_gameData.Substring(moveCountPosIndex + 1, 
+               s_gameData.IndexOf('/') - moveCountPosIndex - 1), out MoveCount))
+            {
+                throw new Exception("/TryParse MoveCount from game data failure\\");
+            }
+            
 
             s_gameData = s_gameData.Substring(s_gameData.IndexOf('/') + 1).Replace("\n", "");
             while (s_gameData.Length > 2) 
@@ -255,28 +264,57 @@ namespace Chess
 
         private bool CheckMove(Figure figure, int y, int x, int targetY, int targetX)
         {
-            switch (figure.Symbol)
-            {
-                case 'P':
-                    if(figure.ColorSign == 'W') { // White always at bottom.
-                        return y - targetY == 1 && x == targetX;
-                    }
-                    if(figure.ColorSign == 'B') { // Black always at top.
-                        return targetY - y == 1 && x == targetX;
-                    }
-                    break;
-                case 'K':
-                    return (targetX - x <= 1 && targetX - x >= -1) || (targetY - y <= 1 && targetY - y >= -1);
-                case 'Q':
-                    return targetX - x == targetY - y || targetX - x == 0 || targetY - y == 0;
-                case 'R':
-                    return targetX - x == 0 || targetY - y == 0;
-                case 'B':
-                    return targetX - x == targetY - y;
-                case 'k':
-                    return ((targetX - x == -2 || targetX - x == 2) && (targetY - y == -1 || targetY - y == 1))
-                        || ((targetX - x == -1 || targetX - x == 1) && (targetY - y == -2 || targetY - y == 2));
+            if(Board[targetY, targetX] != null) {
+                if (Board[targetY, targetX].ColorSign == CurrentColorMove || (targetX == x && targetY == y))
+                    return false;
             }
+            if(figure != null)
+            {                
+                switch (figure.Symbol)
+                {
+                    case 'P':
+                        if (figure.ColorSign == 'W')
+                        { // White always at bottom.
+                            if (Board[targetY, targetX] != null) {
+                                if (Board[targetY, targetX].ColorSign != CurrentColorMove) {
+                                    if (y - targetY == 1 && (x - targetX == 1 || targetX - x == 1)) return true;
+                                }
+                            }
+                            else
+                            {
+                                if (y == 6 && y - targetY == 2) return true;
+                                return y - targetY == 1 && x == targetX;
+                            }                            
+                        }
+                        if (figure.ColorSign == 'B')
+                        { // Black always at top.
+                            if (Board[targetY, targetX] != null)
+                            {
+                                if (Board[targetY, targetX].ColorSign != CurrentColorMove)
+                                {
+                                    if (targetY - y == 1 && (x - targetX == 1 || targetX - x == 1)) return true;
+                                }
+                            }
+                            else
+                            {
+                                if (y == 1 && targetY - y == 2) return true;
+                                return targetY - y == 1 && x == targetX;
+                            }                            
+                        }
+                        break;
+                    case 'K':
+                        return (targetX - x <= 1 && targetX - x >= -1) && (targetY - y <= 1 && targetY - y >= -1);
+                    case 'Q':
+                        return targetX - x == targetY - y || targetX - x == 0 || targetY - y == 0;
+                    case 'R':
+                        return targetX - x == 0 || targetY - y == 0;
+                    case 'B':
+                        return targetX - x == targetY - y;
+                    case 'k':
+                        return( (targetX - x == -2 || targetX - x == 2) && (targetY - y == -1 || targetY - y == 1) )
+                           || ( (targetX - x == -1 || targetX - x == 1) && (targetY - y == -2 || targetY - y == 2) );
+                }
+            }            
             return false; 
         }
 
@@ -285,23 +323,46 @@ namespace Chess
         {
             if (figure != null)
             {
+
                 if (figure.Symbol != 'k') // If figure isn't knight (horse).
                 {
-                    for (int j = -1; j < 2; j++)
+                    if(figure.Symbol != 'P')
                     {
-                        for (int i = -1; i < 2; i++)
+                        for (int j = -1; j < 2; j++)
                         {
-                            if(j != 0 && i != 0)
+                            for (int i = -1; i < 2; i++)
                             {
-                                if (x + j > -1 && x + j < 8 && y + i > -1 && y + i < 8)
+                                if (!(j == 0 && i == 0))
                                 {
-                                    if (Board[y + i, x + j] == null) return true;
-                                    else if (Board[y + i, x + j].ColorSign != CurrentColorMove) return true;
+                                    if (x + j > -1 && x + j < 8 && y + i > -1 && y + i < 8)
+                                    {
+                                        if (Board[y + i, x + j] == null) return true;
+                                        else if (Board[y + i, x + j].ColorSign != CurrentColorMove) return true;
+                                    }
                                 }
-                            }                            
+                            }
+                        }
+                    }    
+                    else
+                    {
+                        if(figure.ColorSign == 'W')
+                        { // White always at bottom.
+                            if (Board[y - 1, x] == null) return true;
+                            if (Board[y - 1, x - 1] != null)
+                                if (Board[y - 1, x - 1].ColorSign != CurrentColorMove) return true;
+                            if (Board[y - 1, x + 1] != null)
+                                if (Board[y - 1, x + 1].ColorSign != CurrentColorMove) return true;
+                        }
+                        else if (figure.ColorSign == 'B')
+                        { // White always at bottom.
+                            if (Board[y + 1, x] == null) return true;
+                            if (Board[y + 1, x - 1] != null)
+                                if (Board[y + 1, x - 1].ColorSign != CurrentColorMove) return true;
+                            if (Board[y + 1, x + 1] != null)
+                                if (Board[y + 1, x + 1].ColorSign != CurrentColorMove) return true;
                         }
                     }
-                }
+                } // End "if (figure.Symbol != 'k')".
                 else if (figure.Symbol == 'k')
                 {
                     for (int j = -1; j < 2; j += 2)
@@ -315,9 +376,9 @@ namespace Chess
                             }
                         }
                     }
-                    for (int j = -2; j < 3; j += 4)
+                    for (int j = -2; j < 3; j += 4) 
                     {
-                        for (int i = -1; i < 2; i += 2)
+                        for (int i = -1; i < 2; i += 2) 
                         {
                             if (x + j > -1 && x + j < 8 && y + i > -1 && y + i < 8)
                             {
@@ -327,6 +388,7 @@ namespace Chess
                         }
                     }
                 }
+
             }
             else throw new NullReferenceException();
                         
@@ -340,35 +402,35 @@ namespace Chess
             do
             {
                 UpdateBoardInfo();
-                Program.WriteAt(BoardStartCoordX + TargetedCellX * 2, BoardStartCoordY + 9, "^");
-                Program.WriteAt(BoardStartCoordX + 18, BoardStartCoordY + TargetedCellY, "<");
+                WriteAt(BoardStartCoordX + TargetedCellX * 2, BoardStartCoordY + 9, "^");
+                WriteAt(BoardStartCoordX + 18, BoardStartCoordY + TargetedCellY, "<");
                 switch (pressedKey = Console.ReadKey().Key)
                 {
                     case ConsoleKey.LeftArrow:
                         if (TargetedCellX > 0)
                         {
-                            Program.WriteAt(BoardStartCoordX + TargetedCellX * 2, BoardStartCoordY + 9, " ");
+                            WriteAt(BoardStartCoordX + TargetedCellX * 2, BoardStartCoordY + 9, " ");
                             TargetedCellX--;
                         }
                         break;
                     case ConsoleKey.RightArrow:
                         if (TargetedCellX < 7)
                         {
-                            Program.WriteAt(BoardStartCoordX + TargetedCellX * 2, BoardStartCoordY + 9, " ");
+                            WriteAt(BoardStartCoordX + TargetedCellX * 2, BoardStartCoordY + 9, " ");
                             TargetedCellX++;
                         }
                         break;
                     case ConsoleKey.UpArrow:
                         if (TargetedCellY > 0)
                         {
-                            Program.WriteAt(BoardStartCoordX + 18, BoardStartCoordY + TargetedCellY, "  ");
+                            WriteAt(BoardStartCoordX + 18, BoardStartCoordY + TargetedCellY, "  ");
                             TargetedCellY--;
                         }
                         break;
                     case ConsoleKey.DownArrow:
                         if (TargetedCellY < 7)
                         {
-                            Program.WriteAt(BoardStartCoordX + 18, BoardStartCoordY + TargetedCellY, "  ");
+                            WriteAt(BoardStartCoordX + 18, BoardStartCoordY + TargetedCellY, "  ");
                             TargetedCellY++;
                         }
                         break;
@@ -393,7 +455,7 @@ namespace Chess
                     }                    
                 }
             }
-            if (kingsCount < 1) return true;
+            if (kingsCount == 1) return true;
             else return false;
         }
 
@@ -401,8 +463,16 @@ namespace Chess
         private void UpdateBoardInfo()
         {
             TargetedCellSign = CellNames_Letters[TargetedCellY].ToString() + CellNames_Numbers[TargetedCellX].ToString();
-            Program.WriteAt(BoardStartCoordX + 22, BoardStartCoordY, TargetedCellSign);             
-            Program.WriteAt(BoardStartCoordX + 22, BoardStartCoordY + 1, "Ход: " + CurrentColorMove.ToString());             
+            switch (CurrentColorMove)
+            {
+                case 'B': // Black move
+                    WriteAt(BoardStartCoordX + 22, BoardStartCoordY, Program.dic_LanguageDic["move"] + ": " + Program.dic_LanguageDic["black"]);
+                    break;
+                case 'W': // White move
+                    WriteAt(BoardStartCoordX + 22, BoardStartCoordY, Program.dic_LanguageDic["move"] + ": " + Program.dic_LanguageDic["white"]);
+                    break;
+            } 
+            WriteAt(BoardStartCoordX + 22, BoardStartCoordY + 4, TargetedCellSign);
         }
 
 

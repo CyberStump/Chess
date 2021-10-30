@@ -6,14 +6,15 @@ using System.Threading;
 
 namespace Chess //                                                                                                        ->                                                     try not to laugh
 {
-    class Program
+    class Program : API
     {
-        private static string AppVersion = "v0.0.1(1) Beta";
+        public static string AppVersion { get; private set; } = "v0.0.1(1) Beta";
+
         private static int _WindowHeight = Console.WindowHeight;
         private static int _WindowWidth  = Console.WindowWidth;
 
-        private static ConsoleColor DefaultBackgroundColor = ConsoleColor.Black;
-        private static ConsoleColor DefaultForegroundColor = ConsoleColor.White;
+        public static ConsoleColor DefaultBackgroundColor { get; private set; } = ConsoleColor.Black;
+        public static ConsoleColor DefaultForegroundColor { get; private set; } = ConsoleColor.White;
 
         private static Game MainGame;
 
@@ -51,14 +52,14 @@ namespace Chess //                                                              
         static void Main(string[] args)
         {            
             Console.Title = "Chess";
-            Console.CursorVisible = false;
+            Console.CursorVisible   = false;
             Console.BackgroundColor = ConsoleColor.Black;
             Console.ForegroundColor = ConsoleColor.Gray;
             ClearScreen();
 
             if (BIOS())
             {
-                GamesDataManager = new DataManager(s_GamesPath);
+                GamesDataManager    = new DataManager(s_GamesPath);
                 SettingsDataManager = new DataManager(s_SettingsPath);
                 LanguageDataManager = new DataManager(s_LanguagePath);
 
@@ -72,7 +73,6 @@ namespace Chess //                                                              
                     languageTextFromData = languageTextFromData.Substring(languageTextFromData.IndexOf(',') + 1);
                     i++;
                 }
-
                 SetLanguage();
                 MainMenu();                
             }
@@ -83,8 +83,8 @@ namespace Chess //                                                              
         private static bool BIOS() // crunch
         {
             int waitingTime = 0; // Milliseconds.
-            bool check = false;
-            int delay = 400;
+            bool check = true;
+            int delay = 500;
             FileInfo dataFile = new FileInfo(s_GamesPath);
             FileInfo languageFile = new FileInfo(s_LanguagePath);
 
@@ -95,38 +95,41 @@ namespace Chess //                                                              
             Console.Write("    " + dataFile.FullName);
             if (!dataFile.Exists) 
             {
-                Thread.Sleep(delay);
-                WriteAt("    NOT EXIST\n", ConsoleColor.Red);
+                check = false;
                 waitingTime += delay;
+                WriteColored("    NOT EXIST\n", ConsoleColor.Red);
+                Thread.Sleep(delay);
                 dataFile.Create();
             }
             else
             {
-                WriteAt("    EXIST\n", ConsoleColor.Green);
+                WriteColored("    EXIST\n", ConsoleColor.Green);
                 Thread.Sleep(100);
             } 
 
             Console.Write("    " + languageFile.FullName);
             if (!languageFile.Exists)
             {
-                Thread.Sleep(delay);
-                WriteAt("    NOT EXIST\n", ConsoleColor.Red);
+                check = false;
                 waitingTime += delay;
+                WriteColored("    NOT EXIST\n", ConsoleColor.Red);
+                Thread.Sleep(delay);
                 languageFile.Create();
             }
             else
             {
-                WriteAt("    EXIST\n", ConsoleColor.Green);
+                WriteColored("    EXIST\n", ConsoleColor.Green);
                 Thread.Sleep(100);
             }
-            Thread.Sleep(waitingTime);
-            return true;
+            return check;
         }
 
                        
         static void MainMenu()
         {
             bool isExit = false;
+
+            WriteAtColored(1, 29, Program.AppVersion, ConsoleColor.DarkGray);
             do
             {
                 Console.BackgroundColor = ConsoleColor.Black;
@@ -141,11 +144,11 @@ namespace Chess //                                                              
                 {
                     case 0:
                         MainGame = new Game(false);
-                        Console.Read();
+                        //Console.Read();
                         break;
                     case 1:
                         MainGame = new Game(true);
-                        Console.Read();
+                        //Console.Read();
                         break;
                     case 2:
                         Settings();
@@ -168,8 +171,8 @@ namespace Chess //                                                              
             do 
             {                
                 ClearScreen();
-                WriteAt(6, 2, dic_LanguageDic["settings"], ConsoleColor.DarkGray);
-                WriteAt(1, 29, AppVersion, ConsoleColor.DarkGray);
+                WriteAtColored(6, 2, dic_LanguageDic["settings"], ConsoleColor.DarkGray);
+                WriteAtColored(1, 29, AppVersion, ConsoleColor.DarkGray);
 
                 switch (SelectionMenuGUI( 8, 4, 1, new string[] {    
                         dic_LanguageDic["language"]   + ": " + CurrentLanguage,
@@ -266,64 +269,6 @@ namespace Chess //                                                              
             Console.WriteLine("\n    ");
         }
 
-
-
-
-        public static void WriteAt(int x, int y, string text)
-        {
-            Console.SetCursorPosition(x, y);
-            Console.Write(text);         
-        }
-
-
-        public static void WriteAt(string text, ConsoleColor color)
-        {
-            ConsoleColor currentTextColor = Console.ForegroundColor;
-            Console.ForegroundColor = color;
-            Console.Write(text);
-            Console.ForegroundColor = currentTextColor;
-        }
-
-
-        public static void WriteAt(int x, int y, string text, ConsoleColor color)
-        {
-            ConsoleColor currentTextColor = Console.ForegroundColor;
-            Console.ForegroundColor = color;
-            Console.SetCursorPosition(x, y);
-            Console.Write(text);
-            Console.ForegroundColor = currentTextColor;
-        }
-
-
-        public static void SetDefaultConsoleColors()
-        {
-            Console.BackgroundColor = DefaultBackgroundColor;
-            Console.ForegroundColor = DefaultForegroundColor;
-        }
-
-
-        public static void ClearScreen()
-        {
-            Console.SetCursorPosition(0, 0);
-            for (int i = 0; i < 29; i++)
-            {
-                Console.WriteLine("                                                                                                                       ");
-            }
-            WriteAt(1, 29, AppVersion, ConsoleColor.DarkGray);
-            Console.SetCursorPosition(0, 0);
-        }
-
-
-        public static void ClearScreen(int startY, int count)
-        {
-            Console.SetCursorPosition(0, startY);
-            for (int i = 0; i < count; i++)
-            {
-                Console.WriteLine("                                                                                                                       ");
-            }
-            WriteAt(1, 29, AppVersion, ConsoleColor.DarkGray);
-            Console.SetCursorPosition(0, 0);
-        }
 
 
         public static int SelectionMenuGUI(int StartX, int StartY, int interval, string[] fields)
