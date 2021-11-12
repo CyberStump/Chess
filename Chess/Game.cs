@@ -222,6 +222,7 @@ namespace Chess
             string s_gameData = GamesDataManager.Read();
             int moveCountPosIndex = s_gameData.IndexOf('c');
             
+            // crunch?
             if(!int.TryParse(s_gameData.Substring(moveCountPosIndex + 1, 
                s_gameData.IndexOf('/') - moveCountPosIndex - 1), out MoveCount))
             {
@@ -282,7 +283,8 @@ namespace Chess
                             }
                             else
                             {
-                                if (y == 6 && y - targetY == 2) return true;
+                                if ( (y == 6 && y - targetY == 2)
+                                    && CheckFigureWay(y, x, targetY, targetX)) return true;
                                 return y - targetY == 1 && x == targetX;
                             }                            
                         }
@@ -297,25 +299,49 @@ namespace Chess
                             }
                             else
                             {
-                                if (y == 1 && targetY - y == 2) return true;
+                                if ( (y == 1 && targetY - y == 2)
+                                    && CheckFigureWay(y, x, targetY, targetX)) return true;
                                 return targetY - y == 1 && x == targetX;
                             }                            
                         }
                         break;
                     case 'K':
-                        return (targetX - x <= 1 && targetX - x >= -1) && (targetY - y <= 1 && targetY - y >= -1);
+                        return ((targetX - x <= 1 && targetX - x >= -1) && (targetY - y <= 1 && targetY - y >= -1))
+                            && CheckFigureWay(y, x, targetY, targetX);
                     case 'Q':
-                        return targetX - x == targetY - y || targetX - x == 0 || targetY - y == 0;
+                        return (Math.Abs(targetX - x) == Math.Abs(targetY - y) || targetX - x == 0 || targetY - y == 0)
+                             && CheckFigureWay(y, x, targetY, targetX);
                     case 'R':
-                        return targetX - x == 0 || targetY - y == 0;
+                        return (targetX - x == 0 || targetY - y == 0) && CheckFigureWay(y, x, targetY, targetX);
                     case 'B':
-                        return targetX - x == targetY - y;
+                        return (Math.Abs(targetX - x) == Math.Abs(targetY - y)) && CheckFigureWay(y, x, targetY, targetX);
                     case 'k':
-                        return( (targetX - x == -2 || targetX - x == 2) && (targetY - y == -1 || targetY - y == 1) )
-                           || ( (targetX - x == -1 || targetX - x == 1) && (targetY - y == -2 || targetY - y == 2) );
+                        return(((targetX - x == -2 || targetX - x == 2) && (targetY - y == -1 || targetY - y == 1) )
+                           || ( (targetX - x == -1 || targetX - x == 1) && (targetY - y == -2 || targetY - y == 2)));
                 }
             }            
             return false; 
+        }
+
+
+        private bool CheckFigureWay(int y, int x, int targetY, int targetX)
+        {
+            int xMod, yMod; // Modules of coord for "for" loop.
+
+            if (targetY - y == 0) yMod = 0;
+                else yMod = (targetY - y) / Math.Abs(targetY - y);
+            if (targetX - x == 0) xMod = 0;
+                else xMod = (targetX - x) / Math.Abs(targetX - x);
+
+            int i = y + yMod,
+                j = x + xMod;
+            while(i != targetY || j != targetX)
+            {
+                if (Board[i, j] != null) return false;
+                i += yMod;
+                j += xMod;
+            }
+            return true;
         }
 
         
@@ -356,10 +382,14 @@ namespace Chess
                         else if (figure.ColorSign == 'B')
                         { // White always at bottom.
                             if (Board[y + 1, x] == null) return true;
-                            if (Board[y + 1, x - 1] != null)
-                                if (Board[y + 1, x - 1].ColorSign != CurrentColorMove) return true;
-                            if (Board[y + 1, x + 1] != null)
-                                if (Board[y + 1, x + 1].ColorSign != CurrentColorMove) return true;
+                            if (x > 0) {
+                                if (Board[y + 1, x - 1] != null)
+                                    if (Board[y + 1, x - 1].ColorSign != CurrentColorMove) return true;
+                            }
+                            if (x < 7) {
+                                if (Board[y + 1, x + 1] != null)
+                                    if (Board[y + 1, x + 1].ColorSign != CurrentColorMove) return true;
+                            }
                         }
                     }
                 } // End "if (figure.Symbol != 'k')".
