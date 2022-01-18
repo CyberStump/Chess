@@ -45,7 +45,7 @@ namespace Chess
             {
                 return SR.ReadLine();
             }
-        }
+        } 
 
 
 

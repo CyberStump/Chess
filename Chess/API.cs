@@ -1,26 +1,12 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Chess
 {
     class API
     {
+        public static void Write(string text) => Console.Write(text);
 
-
-        public static void Write(string text)
-        {
-            Console.Write(text);
-        }
-
-
-        public static void Writeln(string text)
-        {
-            Console.WriteLine(text);
-        }
-
+        public static void Writeln(string text) => Console.WriteLine(text);
 
         public static void WriteAt(int x, int y, string text)
         {
@@ -35,6 +21,11 @@ namespace Chess
             WriteColored(text, color);
         }
 
+        public static void WriteAtColored(int x, int y, string text, ConsoleColor color, ConsoleColor backColor)
+        {
+            Console.SetCursorPosition(x, y);
+            WriteColored(text, color, backColor);
+        }
 
         public static void WriteColored(string text, ConsoleColor color)
         {

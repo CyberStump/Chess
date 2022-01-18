@@ -1,5 +1,4 @@
-﻿using Chess.Figures;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Threading;
@@ -8,10 +7,10 @@ namespace Chess //                                                              
 {
     class Program : API
     {
-        public static string AppVersion { get; private set; } = "v0.0.1(1) Beta";
+        public static string AppVersion { get; private set; } = "v1.0.2(4) Beta";
 
-        private static int _WindowHeight = Console.WindowHeight;
-        private static int _WindowWidth  = Console.WindowWidth;
+        private static int WindowHeight = Console.WindowHeight;
+        private static int WindowWidth  = Console.WindowWidth;
 
         public static ConsoleColor DefaultBackgroundColor { get; private set; } = ConsoleColor.Black;
         public static ConsoleColor DefaultForegroundColor { get; private set; } = ConsoleColor.White;
@@ -76,7 +75,6 @@ namespace Chess //                                                              
                 SetLanguage();
                 MainMenu();                
             }
-            ClearScreen();
         }
 
 
@@ -88,8 +86,8 @@ namespace Chess //                                                              
             FileInfo dataFile = new FileInfo(s_GamesPath);
             FileInfo languageFile = new FileInfo(s_LanguagePath);
 
-            Console.WindowHeight = _WindowHeight; 
-            Console.WindowWidth = _WindowWidth;
+            Console.WindowHeight = WindowHeight; 
+            Console.WindowWidth = WindowWidth;
 
             Console.WriteLine();
             Console.Write("    " + dataFile.FullName);
@@ -99,7 +97,6 @@ namespace Chess //                                                              
                 waitingTime += delay;
                 WriteColored("    NOT EXIST\n", ConsoleColor.Red);
                 Thread.Sleep(delay);
-                dataFile.Create();
             }
             else
             {
@@ -114,7 +111,6 @@ namespace Chess //                                                              
                 waitingTime += delay;
                 WriteColored("    NOT EXIST\n", ConsoleColor.Red);
                 Thread.Sleep(delay);
-                languageFile.Create();
             }
             else
             {
@@ -158,7 +154,8 @@ namespace Chess //                                                              
                         break;
                 }
             }
-            while(!isExit);            
+            while(!isExit);
+            ClearScreen();
         }
 
                  
@@ -290,10 +287,12 @@ namespace Chess //                                                              
                 switch (pressedKey = Console.ReadKey().Key)
                 {
                     case ConsoleKey.UpArrow:
+                        Console.Beep(500, 40);
                         WriteAt(StartX - 2, StartY + selectedOption * interval, " ");
                         selectedOption = selectedOption > 0 ? selectedOption - 1 : selectedOption;                        
                         break;
                     case ConsoleKey.DownArrow:
+                        Console.Beep(500, 40);
                         WriteAt(StartX - 2, StartY + selectedOption * interval, " ");
                         selectedOption = selectedOption < fields.Length - 1 ? selectedOption + 1 : selectedOption;
                         break;
@@ -301,7 +300,8 @@ namespace Chess //                                                              
                         return -1;
                 }                
             }
-            while (pressedKey != ConsoleKey.Enter);            
+            while (pressedKey != ConsoleKey.Enter);
+            Console.Beep(1000, 40);
             return selectedOption;
         }   
 

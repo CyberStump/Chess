@@ -1,5 +1,4 @@
-﻿using Chess.Figures;
-using System;
+﻿using System;
 
 namespace Chess
 {
@@ -8,6 +7,8 @@ namespace Chess
         public char Symbol { get; private set; }       // Just the first letter in the name of the figure. 
         private ConsoleColor Color;                    // Black/white color of figure.
         public char ColorSign { get; private set; }    // To write in data file color of figure.
+
+        public int MovesCount = 0;
 
         public Figure(char symbol, char colorSign)
         {

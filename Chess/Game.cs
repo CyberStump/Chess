@@ -1,6 +1,5 @@
 ﻿using Chess.Figures;
 using System;
-using System.Threading;
 
 namespace Chess
 {
@@ -27,12 +26,18 @@ namespace Chess
             }
         }
 
+        private char Winner = ' ';
+
         private string TargetedCellSign = "A1";
         private int TargetedCellX       = 0;     // j
         private int TargetedCellY       = 0;     // i
 
-        private int BoardStartCoordX   = 50;
-        private int BoardStartCoordY   = 10;
+        private int BoardStartCoordX = 50;
+        private int BoardStartCoordY = 10;
+
+        private ConsoleColor DefaultBoardColor1 = ConsoleColor.DarkGray;
+        private ConsoleColor DefaultBoardColor2 = ConsoleColor.Red;
+        private ConsoleColor DefaultBoardColor3 = ConsoleColor.Blue;
 
         private DateTime FirstPlayerTime = DateTime.MinValue;
         private DataManager GamesDataManager = new DataManager("games.txt");
@@ -45,7 +50,8 @@ namespace Chess
             Board = new Figure[8, 8];
             bool win = false;
 
-            if (newGame) {
+            if (newGame) 
+            {
                 CreateNewBoard();
                 WriteBoardToGameData();
             }
@@ -54,21 +60,15 @@ namespace Chess
             }            
             DrawBoard();
 
-            while (MakeMove())
+            while (true)
             {
-                win = CheckWin();                
-            }
-            if (win)
-            {
-
+                if(!MakeMove()) break;
             }
         }
 
 
         private bool MakeMove()
         {
-            DateTime startMoveTime = DateTime.Now; // Time of start a move.
-
             int[] FigureCoord   = new int[2];  // Coordinates of selected figure.
             int[] MoveCellCoord = new int[2];  // Coordinates of selected cell to move figure.
             bool selected;
@@ -124,6 +124,7 @@ namespace Chess
                             Board[MoveCellCoord[0], MoveCellCoord[1]] = Board[FigureCoord[0], FigureCoord[1]];
                             Board[FigureCoord[0], FigureCoord[1]] = null;
                             selected = true;
+                            Board[MoveCellCoord[0], MoveCellCoord[1]].MovesCount++;
                             MoveCount++;
                             WriteBoardToGameData();
                             DrawBoard();
@@ -137,6 +138,13 @@ namespace Chess
                     }
                 }
                 while (!selected);
+            }
+
+            if (CheckWin())
+            {
+                CreateNewBoard();
+                ShowWinScreen(Winner);
+                WriteBoardToGameData();
             }
             return continueMove;
         }
@@ -170,8 +178,8 @@ namespace Chess
             Board[7, 6] = new Knight('W');
             Board[7, 2] = new Bishop('W');
             Board[7, 5] = new Bishop('W');
-            Board[7, 4] = new King('W');
-            Board[7, 3] = new Queen('W');            
+            Board[7, 3] = new King('W');
+            Board[7, 4] = new Queen('W');            
         }
 
 
@@ -200,8 +208,8 @@ namespace Chess
                 for (int j = 0; j < 8; j++)
                 {
                     WriteAt(BoardStartCoordX + j * 2, BoardStartCoordY - 1, CellNames_Numbers[j].ToString());
-                    if ((i + j + 1) % 2 == 0) Console.BackgroundColor = ConsoleColor.DarkGray;
-                    if ((i + j + 1) % 2 != 0) Console.BackgroundColor = ConsoleColor.Red;
+                    if ((i + j + 1) % 2 == 0) Console.BackgroundColor = DefaultBoardColor1;
+                    if ((i + j + 1) % 2 != 0) Console.BackgroundColor = DefaultBoardColor2;
 
                     Console.SetCursorPosition(BoardStartCoordX + j * 2, BoardStartCoordY + i);
                     if (Board[i, j] != null) {                        
@@ -283,8 +291,8 @@ namespace Chess
                             }
                             else
                             {
-                                if ( (y == 6 && y - targetY == 2)
-                                    && CheckFigureWay(y, x, targetY, targetX)) return true;
+                                if ( y == 6 && y - targetY == 2
+                                    && CheckFigureWay(y, x, targetY, targetX) && x == targetX ) return true;
                                 return y - targetY == 1 && x == targetX;
                             }                            
                         }
@@ -299,15 +307,42 @@ namespace Chess
                             }
                             else
                             {
-                                if ( (y == 1 && targetY - y == 2)
-                                    && CheckFigureWay(y, x, targetY, targetX)) return true;
+                                if ( y == 1 && targetY - y == 2
+                                    && CheckFigureWay(y, x, targetY, targetX) && x == targetX) return true;
                                 return targetY - y == 1 && x == targetX;
                             }                            
                         }
                         break;
-                    case 'K':
-                        return ((targetX - x <= 1 && targetX - x >= -1) && (targetY - y <= 1 && targetY - y >= -1))
-                            && CheckFigureWay(y, x, targetY, targetX);
+                    case 'K': 
+                        if ( figure.MovesCount == 0 && (y == 0 || y == 7) && x == 3 && Math.Abs(targetX - x) > 1 )
+                        {
+                            if (targetX == 1 && CheckFigureWay(y, x, targetY, targetX) && Board[y, 0] != null)
+                            {
+                                if(Board[y, 0].MovesCount == 0)
+                                {
+                                    Board[y, 2] = Board[y, 0];
+                                    Board[y, 0] = null;
+                                    return true;
+                                }
+                                else goto DefaultWay;
+                            }
+                            else if (targetX == 5 && CheckFigureWay(y, x, targetY, targetX + 1) && Board[y, 7] != null)
+                            {
+                                if (Board[y, 0].MovesCount == 0)
+                                {
+                                    Board[y, 4] = Board[y, 7];
+                                    Board[y, 7] = null;
+                                    return true;
+                                }
+                                else goto DefaultWay;
+                            }
+                            else goto DefaultWay;
+                        }
+                        DefaultWay:
+                        {
+                            return ((targetX - x <= 1 && targetX - x >= -1) && (targetY - y <= 1 && targetY - y >= -1))
+                                && CheckFigureWay(y, x, targetY, targetX);
+                        }
                     case 'Q':
                         return (Math.Abs(targetX - x) == Math.Abs(targetY - y) || targetX - x == 0 || targetY - y == 0)
                              && CheckFigureWay(y, x, targetY, targetX);
@@ -316,18 +351,19 @@ namespace Chess
                     case 'B':
                         return (Math.Abs(targetX - x) == Math.Abs(targetY - y)) && CheckFigureWay(y, x, targetY, targetX);
                     case 'k':
-                        return(((targetX - x == -2 || targetX - x == 2) && (targetY - y == -1 || targetY - y == 1) )
-                           || ( (targetX - x == -1 || targetX - x == 1) && (targetY - y == -2 || targetY - y == 2)));
+                        return((targetX - x == -2 || targetX - x == 2) && (targetY - y == -1 || targetY - y == 1))
+                           || ((targetX - x == -1 || targetX - x == 1) && (targetY - y == -2 || targetY - y == 2));
                 }
             }            
             return false; 
         }
 
 
+
         private bool CheckFigureWay(int y, int x, int targetY, int targetX)
         {
-            int xMod, yMod; // Modules of coord for "for" loop.
-
+            int xMod, yMod; // Modules of coord for loop.
+                
             if (targetY - y == 0) yMod = 0;
                 else yMod = (targetY - y) / Math.Abs(targetY - y);
             if (targetX - x == 0) xMod = 0;
@@ -335,7 +371,7 @@ namespace Chess
 
             int i = y + yMod,
                 j = x + xMod;
-            while(i != targetY || j != targetX)
+            while(i != targetY && j != targetX)
             {
                 if (Board[i, j] != null) return false;
                 i += yMod;
@@ -349,11 +385,11 @@ namespace Chess
         {
             if (figure != null)
             {
-
-                if (figure.Symbol != 'k') // If figure isn't knight (horse).
+                switch (figure.Symbol)
                 {
-                    if(figure.Symbol != 'P')
-                    {
+                    case 'K':
+                    case 'Q':
+                    case 'R':
                         for (int j = -1; j < 2; j++)
                         {
                             for (int i = -1; i < 2; i++)
@@ -368,10 +404,49 @@ namespace Chess
                                 }
                             }
                         }
-                    }    
-                    else
-                    {
-                        if(figure.ColorSign == 'W')
+                        break;
+
+                    case 'k':
+                        for (int j = -1; j < 2; j += 2)
+                        {
+                            for (int i = -2; i < 3; i += 4)
+                            {
+                                if (x + j > -1 && x + j < 8 && y + i > -1 && y + i < 8)
+                                {
+                                    if (Board[y + i, x + j] == null) return true;
+                                    else if (Board[y + i, x + j].ColorSign != CurrentColorMove) return true;
+                                }
+                            }
+                        }
+                        for (int j = -2; j < 3; j += 4)
+                        {
+                            for (int i = -1; i < 2; i += 2)
+                            {
+                                if (x + j > -1 && x + j < 8 && y + i > -1 && y + i < 8)
+                                {
+                                    if (Board[y + i, x + j] == null) return true;
+                                    else if (Board[y + i, x + j].ColorSign != CurrentColorMove) return true;
+                                }
+                            }
+                        }
+                        break;
+
+                    case 'B':
+                        for (int j = -1; j < 2; j += 2)
+                        {
+                            for (int i = -1; i < 2; i += 2)
+                            {
+                                if (x + j > -1 && x + j < 8 && y + i > -1 && y + i < 8)
+                                {
+                                    if (Board[y + i, x + j] == null) return true;
+                                    else if (Board[y + i, x + j].ColorSign != CurrentColorMove) return true;
+                                }
+                            }
+                        }
+                        break;
+
+                    case 'P':
+                        if (figure.ColorSign == 'W')
                         { // White always at bottom.
                             if (Board[y - 1, x] == null) return true;
                             if (Board[y - 1, x - 1] != null)
@@ -382,45 +457,21 @@ namespace Chess
                         else if (figure.ColorSign == 'B')
                         { // White always at bottom.
                             if (Board[y + 1, x] == null) return true;
-                            if (x > 0) {
+                            if (x > 0)
+                            {
                                 if (Board[y + 1, x - 1] != null)
                                     if (Board[y + 1, x - 1].ColorSign != CurrentColorMove) return true;
                             }
-                            if (x < 7) {
+                            if (x < 7)
+                            {
                                 if (Board[y + 1, x + 1] != null)
                                     if (Board[y + 1, x + 1].ColorSign != CurrentColorMove) return true;
                             }
                         }
-                    }
-                } // End "if (figure.Symbol != 'k')".
-                else if (figure.Symbol == 'k')
-                {
-                    for (int j = -1; j < 2; j += 2)
-                    {
-                        for (int i = -2; i < 3; i += 4)
-                        {
-                            if (x + j > -1 && x + j < 8 && y + i > -1 && y + i < 8)
-                            {
-                                if (Board[y + i, x + j] == null) return true;
-                                else if (Board[y + i, x + j].ColorSign != CurrentColorMove) return true;
-                            }
-                        }
-                    }
-                    for (int j = -2; j < 3; j += 4) 
-                    {
-                        for (int i = -1; i < 2; i += 2) 
-                        {
-                            if (x + j > -1 && x + j < 8 && y + i > -1 && y + i < 8)
-                            {
-                                if (Board[y + i, x + j] == null) return true;
-                                else if (Board[y + i, x + j].ColorSign != CurrentColorMove) return true;
-                            }
-                        }
-                    }
-                }
-
+                        break;
+                }                
             }
-            else throw new NullReferenceException();
+            else throw new NullReferenceException("CheckAnyPossibleMoves(): null figure on input! ");
                         
             return false;
         }
@@ -428,7 +479,7 @@ namespace Chess
 
         private int[] SelectCell()
         {
-            ConsoleKey pressedKey;      
+            ConsoleKey pressedKey;
             do
             {
                 UpdateBoardInfo();
@@ -466,7 +517,7 @@ namespace Chess
                         break;
                     case ConsoleKey.Escape:
                         return new int[] { -1, -1 };
-                }
+                }                
             }
             while (pressedKey != ConsoleKey.Enter);
             return new int[] { TargetedCellY, TargetedCellX };
@@ -476,17 +527,43 @@ namespace Chess
         private bool CheckWin()
         {
             int kingsCount = 0;
+            char winner = ' ';
             for (int i = 0; i < 8; i++) {
                 for (int j = 0; j < 8; j++) {
                     if(Board[i, j] != null) {
                         if (Board[i, j].Symbol == 'K') {
                             kingsCount++;
+                            winner = Board[i, j].ColorSign;
                         }
                     }                    
                 }
             }
-            if (kingsCount == 1) return true;
+            if (kingsCount == 1)
+            {
+                Winner = winner;
+                return true;
+            }
             else return false;
+        }
+
+
+        private void ShowWinScreen(char winner)
+        {
+            ClearScreen();
+            WriteAt(4, 2, Program.dic_LanguageDic["winner"] + ":");
+            
+            switch (winner)
+            {
+                case 'W':
+                    WriteAt(16, 2, Program.dic_LanguageDic["white"]);
+                    break;
+                case 'B':
+                    WriteAt(16, 2, Program.dic_LanguageDic["black"]);
+                    break;
+            }
+            WriteAt(4, 3, Program.dic_LanguageDic["movescount"] + ":");
+            WriteAt(21, 3, MoveCount.ToString());
+            Console.ReadKey();
         }
 
 
@@ -503,6 +580,7 @@ namespace Chess
                     break;
             } 
             WriteAt(BoardStartCoordX + 22, BoardStartCoordY + 4, TargetedCellSign);
+            WriteAt(BoardStartCoordX + 22, BoardStartCoordY + 6, Program.dic_LanguageDic["movescount"] + ": " + MoveCount.ToString());
         }
 
 
