@@ -7,11 +7,5 @@ namespace Chess.Figures
         {
 
         }
-
-
-        /*private bool CanMove(int i, int j)
-        {
-            return ( (i == PosX || j == PosY) || (i - PosX == j - PosY));
-        }*/
     }
 }

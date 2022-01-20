@@ -48,7 +48,6 @@ namespace Chess
         public Game(bool newGame)
         {            
             Board = new Figure[8, 8];
-            bool win = false;
 
             if (newGame) 
             {
@@ -453,19 +452,41 @@ namespace Chess
                                 if (Board[y - 1, x - 1].ColorSign != CurrentColorMove) return true;
                             if (Board[y - 1, x + 1] != null)
                                 if (Board[y - 1, x + 1].ColorSign != CurrentColorMove) return true;
+                            // Check the possibility of taking on the pass.
+                            if (y == 3)
+                            {
+                                if(x > 0)
+                                {
+                                    if (Board[3, x - 1] != null)
+                                        if (Board[3, x - 1].ColorSign != CurrentColorMove) return true;
+                                }
+                                if (x < 7)
+                                {
+                                    if (Board[3, x + 1] != null)
+                                        if (Board[3, x + 1].ColorSign != CurrentColorMove) return true;
+                                }
+                            }
                         }
                         else if (figure.ColorSign == 'B')
-                        { // White always at bottom.
+                        { // Black always at top.
                             if (Board[y + 1, x] == null) return true;
-                            if (x > 0)
+                            if (Board[y + 1, x - 1] != null)
+                                if (Board[y + 1, x - 1].ColorSign != CurrentColorMove) return true;                            
+                            if (Board[y + 1, x + 1] != null)
+                                if (Board[y + 1, x + 1].ColorSign != CurrentColorMove) return true;                            
+                            // Check the possibility of taking on the pass.
+                            if (y == 4)
                             {
-                                if (Board[y + 1, x - 1] != null)
-                                    if (Board[y + 1, x - 1].ColorSign != CurrentColorMove) return true;
-                            }
-                            if (x < 7)
-                            {
-                                if (Board[y + 1, x + 1] != null)
-                                    if (Board[y + 1, x + 1].ColorSign != CurrentColorMove) return true;
+                                if (x > 0)
+                                {
+                                    if (Board[4, x - 1] != null)
+                                        if (Board[4, x - 1].ColorSign != CurrentColorMove) return true;
+                                }
+                                if (x < 7)
+                                {
+                                    if (Board[4, x + 1] != null)
+                                        if (Board[4, x + 1].ColorSign != CurrentColorMove) return true;
+                                }
                             }
                         }
                         break;

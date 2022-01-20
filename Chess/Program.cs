@@ -78,7 +78,7 @@ namespace Chess //                                                              
         }
 
 
-        private static bool BIOS() // crunch
+        private static bool BIOS() // crunch?
         {
             int waitingTime = 0; // Milliseconds.
             bool check = true;
