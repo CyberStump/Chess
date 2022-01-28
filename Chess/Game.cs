@@ -18,8 +18,10 @@ namespace Chess
         { '1', '2', '3', '4', '5', '6', '7', '8' };
 
         private int MoveCount;
+
         private char CurrentColorMove { // White always goes first.
-            get {
+            get 
+            {
                 if (MoveCount % 2 == 0)
                     return 'W';
                 else return 'B';
@@ -29,8 +31,9 @@ namespace Chess
         private char Winner = ' ';
 
         private string TargetedCellSign = "A1";
-        private int TargetedCellX       = 0;     // j
-        private int TargetedCellY       = 0;     // i
+
+        private int TargetedCellX = 0;     // j
+        private int TargetedCellY = 0;     // i
 
         private int BoardStartCoordX = 50;
         private int BoardStartCoordY = 10;
@@ -229,7 +232,7 @@ namespace Chess
             string s_gameData = GamesDataManager.Read();
             int moveCountPosIndex = s_gameData.IndexOf('c');
             
-            // crunch?
+            // crunch
             if(!int.TryParse(s_gameData.Substring(moveCountPosIndex + 1, 
                s_gameData.IndexOf('/') - moveCountPosIndex - 1), out MoveCount))
             {
@@ -290,8 +293,23 @@ namespace Chess
                             }
                             else
                             {
-                                if ( y == 6 && y - targetY == 2
-                                    && CheckFigureWay(y, x, targetY, targetX) && x == targetX ) return true;
+                                if (y == 6 && y - targetY == 2
+                                    && CheckFigureWay(y, x, targetY, targetX) && x == targetX)
+                                {
+                                    Board[y, x].isMakeJump = true;
+                                    return true;
+                                }
+                                if(y == 3 && y - targetY == 1)
+                                {
+                                    if(Board[2, targetX] == null) {
+                                        if(Board[3, targetX] != null) {
+                                            if(Board[3, targetX].isMakeJump) {
+                                                Board[3, targetX] = null;
+                                                return true;
+                                            }
+                                        }
+                                    }
+                                }
                                 return y - targetY == 1 && x == targetX;
                             }                            
                         }
@@ -306,8 +324,23 @@ namespace Chess
                             }
                             else
                             {
-                                if ( y == 1 && targetY - y == 2
-                                    && CheckFigureWay(y, x, targetY, targetX) && x == targetX) return true;
+                                if (y == 1 && targetY - y == 2 &&
+                                    CheckFigureWay(y, x, targetY, targetX) && x == targetX)
+                                {
+                                    Board[y, x].isMakeJump = true;
+                                    return true;
+                                }
+                                if (y == 4 && targetY - y == 1)
+                                {                                    
+                                    if (Board[5, targetX] == null) {
+                                        if (Board[4, targetX] != null) {
+                                            if (Board[4, targetX].isMakeJump) {
+                                                Board[4, targetX] = null;
+                                                return true;
+                                            }
+                                        }
+                                    }                                    
+                                }
                                 return targetY - y == 1 && x == targetX;
                             }                            
                         }
@@ -370,6 +403,7 @@ namespace Chess
 
             int i = y + yMod,
                 j = x + xMod;
+            
             while(i != targetY && j != targetX)
             {
                 if (Board[i, j] != null) return false;
