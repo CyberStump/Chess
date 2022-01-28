@@ -7,7 +7,7 @@ namespace Chess //                                                              
 {
     class Program : API
     {
-        public static string AppVersion { get; private set; } = "v1.0.2(4) Beta";
+        public static string AppVersion { get; private set; } = "v1.0.3(5) Beta";
 
         private static int WindowHeight = Console.WindowHeight;
         private static int WindowWidth  = Console.WindowWidth;
@@ -31,12 +31,6 @@ namespace Chess //                                                              
                 return LanguageDataManager.Read().Substring(LanguageDataManager.Read().IndexOf('>') + 1, 3);
             }
         }
-
-        // Temporary
-        private static string[] Languages = new string[]
-        {
-            "RUS", "ENG"
-        };
 
         // Keywords of buttons/fields.
         private static string[] s_words = new string[30];
@@ -125,7 +119,7 @@ namespace Chess //                                                              
         {
             bool isExit = false;
 
-            WriteAtColored(1, 29, Program.AppVersion, ConsoleColor.DarkGray);
+            WriteAtColored(1, 29, AppVersion, ConsoleColor.DarkGray);
             do
             {
                 Console.BackgroundColor = ConsoleColor.Black;
@@ -157,9 +151,7 @@ namespace Chess //                                                              
             while(!isExit);
             ClearScreen();
         }
-
-                 
-        
+                        
 
         private static void Settings()
         {
@@ -174,7 +166,7 @@ namespace Chess //                                                              
                 switch (SelectionMenuGUI( 8, 4, 1, new string[] {    
                         dic_LanguageDic["language"]   + ": " + CurrentLanguage,
                         dic_LanguageDic["colorsheme"] + ": -",
-                        dic_LanguageDic["back"] } ) ) 
+                        dic_LanguageDic["back"] } )) 
                 {                    
                     case 0:
                         // crunch!
@@ -202,7 +194,8 @@ namespace Chess //                                                              
             string s_LanguageFileText = LanguageDataManager.Read();
             int langIndex = s_LanguageFileText.IndexOf(language) + 3;
 
-            // Example: >ENG converts to >RUS .
+            // Example:  >ENG  converts to:   ENG
+            //            RUS                >RUS 
             s_LanguageFileText = s_LanguageFileText.Replace('>', ' ');
             s_LanguageFileText = s_LanguageFileText.Replace(" " + language, ">" + language);
 
@@ -257,17 +250,7 @@ namespace Chess //                                                              
             ClearScreen();
         }
 
-
-
-
-        private static void Exit()
-        {
-            Console.Clear();
-            Console.WriteLine("\n    ");
-        }
-
-
-
+               
         public static int SelectionMenuGUI(int StartX, int StartY, int interval, string[] fields)
         {
             ConsoleKey pressedKey;
@@ -303,7 +286,7 @@ namespace Chess //                                                              
             while (pressedKey != ConsoleKey.Enter);
             Console.Beep(1000, 40);
             return selectedOption;
-        }   
+        }
 
 
         // EOF :)

@@ -21,11 +21,13 @@ namespace Chess
             WriteColored(text, color);
         }
 
+
         public static void WriteAtColored(int x, int y, string text, ConsoleColor color, ConsoleColor backColor)
         {
             Console.SetCursorPosition(x, y);
             WriteColored(text, color, backColor);
         }
+
 
         public static void WriteColored(string text, ConsoleColor color)
         {

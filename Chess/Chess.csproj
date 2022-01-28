@@ -45,7 +45,6 @@
   <ItemGroup>
     <Compile Include="API.cs" />
     <Compile Include="DataManager.cs" />
-    <Compile Include="Figures\IFigure.cs" />
     <Compile Include="Figures\King.cs" />
     <Compile Include="Figures\Queen.cs" />
     <Compile Include="Figures\Bishop.cs" />
