@@ -17,10 +17,29 @@ namespace Chess
         private char[] CellNames_Numbers = new char[8] 
         { '1', '2', '3', '4', '5', '6', '7', '8' };
 
-        private int MoveCount;
 
-        private char CurrentColorMove { // White always goes first.
-            get 
+        private char Winner = ' ';
+
+        private string TargetedCellSign = "A1";  // The cursor is hovered over this cell;
+
+        private int TargetedCellX = 0;           // j
+        private int TargetedCellY = 0;           // i
+
+        private int BoardStartCoordX = 50;       // Board placement
+        private int BoardStartCoordY = 10;
+
+        private ConsoleColor DefaultBoardColor1 = ConsoleColor.DarkGray;
+        private ConsoleColor DefaultBoardColor2 = ConsoleColor.Red;
+
+        private DateTime FirstPlayerTime = DateTime.MinValue;
+        private DataManager GamesDataManager = new DataManager("games.txt");
+        //private DataManager LanguageDataManager = new DataManager("language.txt");
+
+        private int MoveCount;       
+
+        private char CurrentColorMove
+        { // White always goes first.
+            get
             {
                 if (MoveCount % 2 == 0)
                     return 'W';
@@ -28,23 +47,6 @@ namespace Chess
             }
         }
 
-        private char Winner = ' ';
-
-        private string TargetedCellSign = "A1";
-
-        private int TargetedCellX = 0;     // j
-        private int TargetedCellY = 0;     // i
-
-        private int BoardStartCoordX = 50;
-        private int BoardStartCoordY = 10;
-
-        private ConsoleColor DefaultBoardColor1 = ConsoleColor.DarkGray;
-        private ConsoleColor DefaultBoardColor2 = ConsoleColor.Red;
-        private ConsoleColor DefaultBoardColor3 = ConsoleColor.Blue;
-
-        private DateTime FirstPlayerTime = DateTime.MinValue;
-        private DataManager GamesDataManager = new DataManager("games.txt");
-        //private DataManager LanguageDataManager = new DataManager("language.txt");
 
 
 
@@ -52,20 +54,20 @@ namespace Chess
         {            
             Board = new Figure[8, 8];
 
+
             if (newGame) 
             {
                 CreateNewBoard();
                 WriteBoardToGameData();
             }
-            else {
+            else 
+            {
                 SynchronizeBoardFromGameData();
             }            
             DrawBoard();
 
             while (true)
-            {
                 if(!MakeMove()) break;
-            }
         }
 
 
@@ -73,12 +75,13 @@ namespace Chess
         {
             int[] FigureCoord   = new int[2];  // Coordinates of selected figure.
             int[] MoveCellCoord = new int[2];  // Coordinates of selected cell to move figure.
-            bool selected;
+            bool selected = false; // ?
             bool continueMove = true;
             string selectedFigure = "";
 
-            selected = false; // crunch?
-            do // Select figure to move
+
+            // Select figure to move
+            do
             {
                 WriteAt(BoardStartCoordX + 22, BoardStartCoordY + 2, Program.dic_LanguageDic["selectfigure"]);
                 
@@ -148,6 +151,7 @@ namespace Chess
                 ShowWinScreen(Winner);
                 WriteBoardToGameData();
             }
+
             return continueMove;
         }
 
@@ -155,11 +159,13 @@ namespace Chess
         private void CreateNewBoard()
         {
             MoveCount = 0;
+
             for (int i = 0; i < 8; i++) {
                 for (int j = 0; j < 8; j++) {
                     Board[i, j] = null;
                 }
             }
+
             for (int i = 0; i < 8; i++) {
                 Board[1, i] = new Pawn('B');
                 Board[6, i] = new Pawn('W');
@@ -189,6 +195,7 @@ namespace Chess
         {
             string gameData = DateTime.Now + " c" + MoveCount + "/\n";
 
+
             for (int i = 0; i < 8; i++) {
                 for (int j = 0; j < 8; j++) {
                     if (Board[i, j] != null) {
@@ -196,6 +203,7 @@ namespace Chess
                     }
                 }
             }
+
             GamesDataManager.Write(gameData + "/");
         }
 
@@ -204,17 +212,20 @@ namespace Chess
         {
             ClearScreen();
             WriteAtColored(1, 29, Program.AppVersion, ConsoleColor.DarkGray);
+
             for (int i = 0; i < 8; i++)
             {
                 WriteAt(BoardStartCoordX - 2, BoardStartCoordY + i, CellNames_Letters[i].ToString());
                 for (int j = 0; j < 8; j++)
                 {
                     WriteAt(BoardStartCoordX + j * 2, BoardStartCoordY - 1, CellNames_Numbers[j].ToString());
+
                     if ((i + j + 1) % 2 == 0) Console.BackgroundColor = DefaultBoardColor1;
                     if ((i + j + 1) % 2 != 0) Console.BackgroundColor = DefaultBoardColor2;
 
                     Console.SetCursorPosition(BoardStartCoordX + j * 2, BoardStartCoordY + i);
-                    if (Board[i, j] != null) {                        
+                    if (Board[i, j] != null) 
+                    {                        
                         Board[i, j].Draw();
                     }
                     else Console.Write("  ");
@@ -232,6 +243,7 @@ namespace Chess
             string s_gameData = GamesDataManager.Read();
             int moveCountPosIndex = s_gameData.IndexOf('c');
             
+
             // crunch
             if(!int.TryParse(s_gameData.Substring(moveCountPosIndex + 1, 
                s_gameData.IndexOf('/') - moveCountPosIndex - 1), out MoveCount))
@@ -246,23 +258,23 @@ namespace Chess
                 switch (s_gameData[0])
                 {
                     case 'P':
-                        figure = new Pawn(s_gameData[1]);
-                        break;
+                             figure = new Pawn(s_gameData[1]);
+                             break;
                     case 'K':
-                        figure = new King(s_gameData[1]);
-                        break;
+                             figure = new King(s_gameData[1]);
+                             break;
                     case 'Q':
-                        figure = new Queen(s_gameData[1]);
-                        break;
+                             figure = new Queen(s_gameData[1]);
+                             break;
                     case 'R':
-                        figure = new Rook(s_gameData[1]);
-                        break;
+                             figure = new Rook(s_gameData[1]);
+                             break;
                     case 'B':
-                        figure = new Bishop(s_gameData[1]);
-                        break;
+                             figure = new Bishop(s_gameData[1]);
+                             break;
                     case 'k':
-                        figure = new Knight(s_gameData[1]);
-                        break;
+                             figure = new Knight(s_gameData[1]);
+                             break;
                 }
                 i = int.Parse(s_gameData[2].ToString());
                 j = int.Parse(s_gameData[3].ToString());
@@ -275,10 +287,10 @@ namespace Chess
 
         private bool CheckMove(Figure figure, int y, int x, int targetY, int targetX)
         {
-            if(Board[targetY, targetX] != null) {
+            if(Board[targetY, targetX] != null) 
                 if (Board[targetY, targetX].ColorSign == CurrentColorMove || (targetX == x && targetY == y))
                     return false;
-            }
+
             if(figure != null)
             {                
                 switch (figure.Symbol)
@@ -313,6 +325,7 @@ namespace Chess
                                 return y - targetY == 1 && x == targetX;
                             }                            
                         }
+
                         if (figure.ColorSign == 'B')
                         { // Black always at top.
                             if (Board[targetY, targetX] != null)
@@ -345,6 +358,8 @@ namespace Chess
                             }                            
                         }
                         break;
+
+
                     case 'K': 
                         if ( figure.MovesCount == 0 && (y == 0 || y == 7) && x == 3 && Math.Abs(targetX - x) > 1 )
                         {
@@ -372,19 +387,20 @@ namespace Chess
                         }
                         DefaultWay:
                         {
-                            return ((targetX - x <= 1 && targetX - x >= -1) && (targetY - y <= 1 && targetY - y >= -1))
-                                && CheckFigureWay(y, x, targetY, targetX);
+                            return ((targetX - x <= 1 && targetX - x >= -1) && (targetY - y <= 1 && targetY - y >= -1)) &&
+                                   CheckFigureWay(y, x, targetY, targetX);
                         }
+
                     case 'Q':
-                        return (Math.Abs(targetX - x) == Math.Abs(targetY - y) || targetX - x == 0 || targetY - y == 0)
-                             && CheckFigureWay(y, x, targetY, targetX);
+                            return (Math.Abs(targetX - x) == Math.Abs(targetY - y) || targetX - x == 0 || targetY - y == 0) &&
+                                   CheckFigureWay(y, x, targetY, targetX);
                     case 'R':
-                        return (targetX - x == 0 || targetY - y == 0) && CheckFigureWay(y, x, targetY, targetX);
+                            return (targetX - x == 0 || targetY - y == 0) && CheckFigureWay(y, x, targetY, targetX);
                     case 'B':
-                        return (Math.Abs(targetX - x) == Math.Abs(targetY - y)) && CheckFigureWay(y, x, targetY, targetX);
+                            return (Math.Abs(targetX - x) == Math.Abs(targetY - y)) && CheckFigureWay(y, x, targetY, targetX);
                     case 'k':
-                        return((targetX - x == -2 || targetX - x == 2) && (targetY - y == -1 || targetY - y == 1))
-                           || ((targetX - x == -1 || targetX - x == 1) && (targetY - y == -2 || targetY - y == 2));
+                            return ((targetX - x == -2 || targetX - x == 2) && (targetY - y == -1 || targetY - y == 1)) ||
+                                   ((targetX - x == -1 || targetX - x == 1) && (targetY - y == -2 || targetY - y == 2));
                 }
             }            
             return false; 
@@ -396,13 +412,18 @@ namespace Chess
         {
             int xMod, yMod; // Modules of coord for loop.
                 
-            if (targetY - y == 0) yMod = 0;
-                else yMod = (targetY - y) / Math.Abs(targetY - y);
-            if (targetX - x == 0) xMod = 0;
-                else xMod = (targetX - x) / Math.Abs(targetX - x);
+            if (targetY - y == 0) 
+                yMod = 0;
+            else 
+                yMod = (targetY - y) / Math.Abs(targetY - y);
 
-            int i = y + yMod,
-                j = x + xMod;
+            if (targetX - x == 0) 
+                xMod = 0;
+            else 
+                xMod = (targetX - x) / Math.Abs(targetX - x);
+
+            int i = y + yMod;
+            int j = x + xMod;
             
             while(i != targetY && j != targetX)
             {
@@ -410,6 +431,7 @@ namespace Chess
                 i += yMod;
                 j += xMod;
             }
+
             return true;
         }
 
@@ -439,6 +461,7 @@ namespace Chess
                         }
                         break;
 
+
                     case 'k':
                         for (int j = -1; j < 2; j += 2)
                         {
@@ -464,6 +487,7 @@ namespace Chess
                         }
                         break;
 
+
                     case 'B':
                         for (int j = -1; j < 2; j += 2)
                         {
@@ -477,6 +501,7 @@ namespace Chess
                             }
                         }
                         break;
+
 
                     case 'P':
                         if (figure.ColorSign == 'W')
@@ -540,6 +565,7 @@ namespace Chess
                 UpdateBoardInfo();
                 WriteAt(BoardStartCoordX + TargetedCellX * 2, BoardStartCoordY + 9, "^");
                 WriteAt(BoardStartCoordX + 18, BoardStartCoordY + TargetedCellY, "<");
+
                 switch (pressedKey = Console.ReadKey().Key)
                 {
                     case ConsoleKey.LeftArrow:
@@ -575,6 +601,7 @@ namespace Chess
                 }                
             }
             while (pressedKey != ConsoleKey.Enter);
+
             return new int[] { TargetedCellY, TargetedCellX };
         }
 
@@ -593,12 +620,16 @@ namespace Chess
                     }                    
                 }
             }
+
             if (kingsCount == 1)
             {
                 Winner = winner;
                 return true;
             }
-            else return false;
+            else
+            {
+                return false;
+            }
         }
 
 
@@ -616,8 +647,10 @@ namespace Chess
                     WriteAt(16, 2, Program.dic_LanguageDic["black"]);
                     break;
             }
+
             WriteAt(4, 3, Program.dic_LanguageDic["movescount"] + ":");
             WriteAt(21, 3, MoveCount.ToString());
+
             Console.ReadKey();
         }
 
@@ -625,6 +658,7 @@ namespace Chess
         private void UpdateBoardInfo()
         {
             TargetedCellSign = CellNames_Letters[TargetedCellY].ToString() + CellNames_Numbers[TargetedCellX].ToString();
+
             switch (CurrentColorMove)
             {
                 case 'B': // Black move
@@ -634,6 +668,7 @@ namespace Chess
                     WriteAt(BoardStartCoordX + 22, BoardStartCoordY, Program.dic_LanguageDic["move"] + ": " + Program.dic_LanguageDic["white"]);
                     break;
             } 
+
             WriteAt(BoardStartCoordX + 22, BoardStartCoordY + 4, TargetedCellSign);
             WriteAt(BoardStartCoordX + 22, BoardStartCoordY + 6, Program.dic_LanguageDic["movescount"] + ": " + MoveCount.ToString());
         }
