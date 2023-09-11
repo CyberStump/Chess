@@ -58,21 +58,19 @@ namespace Chess
 
 
 
-        // Ordinary ClearScreen causes some troubles.
+        // Ordinary Console.Clear() causes some troubles.
         public static void ClearScreen()
-        {   
+        {               
             Console.SetCursorPosition(0, 0);
-            for (int i = 0; i < Console.WindowHeight; i++) 
-                Console.WriteLine(new string(' ', Console.WindowWidth)); 
-            
+            Console.Write(new string(' ', Console.WindowWidth * (Console.WindowHeight - 1) ));
+            WriteColored(" " + Program.AppVersion, ConsoleColor.DarkGray);
             Console.SetCursorPosition(0, 0);
         }
 
         public static void ClearScreen(int startY, int count)
         {
             Console.SetCursorPosition(0, startY);
-            for (int i = 0; i < count; i++) 
-                Console.WriteLine(new string(' ', Console.WindowWidth));
+            Console.Write(new string(' ', Console.WindowWidth * count));
 
             Console.SetCursorPosition(0, 0);
         }

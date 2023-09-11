@@ -39,7 +39,42 @@ namespace Chess //                                                              
 
 
 
-     
+
+
+        private static bool BIOS()
+        {
+            bool check = false;
+
+
+            Console.WindowHeight = WindowHeight;
+            Console.WindowWidth = WindowWidth;
+            Console.WriteLine();
+
+            return CheckFileExistance(new FileInfo(GamesFilePath)) && CheckFileExistance(new FileInfo(LanguageFilePath));
+        }
+
+
+        private static bool CheckFileExistance(FileInfo file)
+        {
+            Console.Write("    " + file.FullName);
+            if (file.Exists)
+            {
+                WriteColored("    EXIST\n", ConsoleColor.Green);
+                return true;
+            }
+            else
+            {
+                WriteColored("    NOT EXIST\n", ConsoleColor.Red);
+            }
+            return false;
+        }
+
+
+
+
+        /////////////////////////////////////////////////////////////////////////////////////        
+        /////////////////////////////////////////////////////////////////////////////////////        
+
         static void Main(string[] args)
         {            
             Console.Title = "Chess";
@@ -68,59 +103,16 @@ namespace Chess //                                                              
                 SetLanguage();
                 MainMenu();                
             }
+            
             Console.SetCursorPosition(0, Console.WindowHeight - 1);
         }
-
-
-        private static bool BIOS() // crunch?
-        {
-            int waitingTime = 0; // Milliseconds.
-            bool check = true;
-            int delay = 500;
-            FileInfo dataFile = new FileInfo(GamesFilePath);
-            FileInfo languageFile = new FileInfo(LanguageFilePath);
-
-            Console.WindowHeight = WindowHeight; 
-            Console.WindowWidth = WindowWidth;
-
-            Console.WriteLine();
-            Console.Write("    " + dataFile.FullName);
-            if (!dataFile.Exists) 
-            {
-                check = false;
-                waitingTime += delay;
-                WriteColored("    NOT EXIST\n", ConsoleColor.Red);
-                Thread.Sleep(delay);
-            }
-            else
-            {
-                WriteColored("    EXIST\n", ConsoleColor.Green);
-                Thread.Sleep(100);
-            } 
-
-            Console.Write("    " + languageFile.FullName);
-            if (!languageFile.Exists)
-            {
-                check = false;
-                waitingTime += delay;
-                WriteColored("    NOT EXIST\n", ConsoleColor.Red);
-                Thread.Sleep(delay);
-            }
-            else
-            {
-                WriteColored("    EXIST\n", ConsoleColor.Green);
-                Thread.Sleep(100);
-            }
-            return check;
-        }
-
+       
                        
         static void MainMenu()
         {
             bool isExit = false;
 
-
-            WriteAtColored(1, 29, AppVersion, ConsoleColor.DarkGray);
+                        
             do
             {
                 Console.BackgroundColor = ConsoleColor.Black;
@@ -166,11 +158,10 @@ namespace Chess //                                                              
             bool isExit = false;
 
 
+            ClearScreen();
             do 
-            {                
-                ClearScreen();
+            {                              
                 WriteAtColored(6, 2, dic_LanguageDic["settings"], ConsoleColor.DarkGray);
-                WriteAtColored(1, 29, AppVersion, ConsoleColor.DarkGray);
 
                 switch (SelectionMenuGUI( 8, 4, 1, new string[] {    
                         dic_LanguageDic["language"]   + ": " + CurrentLanguage,
@@ -179,10 +170,10 @@ namespace Chess //                                                              
                 {                    
                     case 0:
                         // crunch!
-                        if (CurrentLanguage == "RUS") {
+                        if (CurrentLanguage == "RUS")
                             ChangeLanguage("ENG"); 
-                        }
-                        else ChangeLanguage("RUS");
+                        else 
+                            ChangeLanguage("RUS");
                         break;
                     case 1:
                         break;
@@ -198,7 +189,8 @@ namespace Chess //                                                              
         }
 
 
-        static void ChangeLanguage(string language)
+        // FIX FIX FIX FIX FIX FIX FIX FIX FIX FIX FIX FIX FIX FIX FIX FIX
+        static void ChangeLanguage(string language) 
         {
             string s_LanguageFileText = LanguageDataManager.Read();
             int langIndex = s_LanguageFileText.IndexOf(language) + 3;
@@ -213,7 +205,7 @@ namespace Chess //                                                              
             SetLanguage();
         }
 
-
+        // FIX FIX FIX FIX FIX FIX FIX FIX FIX FIX FIX FIX FIX FIX FIX FIX
         static void SetLanguage()
         {
             string s_LanguageFileText;      // Contains text from language .txt file.
@@ -221,11 +213,11 @@ namespace Chess //                                                              
             int index;                      // Position of arrow that marks current language.
             char symbol = ' ';
 
+
             dic_LanguageDic.Clear();
 
             s_LanguageFileText    = LanguageDataManager.Read();
-            s_CurrentLanguageText = "";
-            
+            s_CurrentLanguageText = "";            
             index = s_LanguageFileText.IndexOf('>') + 4;
 
             // Gathering current language dictionary.
@@ -257,8 +249,6 @@ namespace Chess //                                                              
                     dic_LanguageDic.Add(key, word);
                 }                
             }
-
-            ClearScreen();
         }
 
                
@@ -296,12 +286,11 @@ namespace Chess //                                                              
                 }                
             }
             while (pressedKey != ConsoleKey.Enter);
-            Console.Beep(1000, 40);
 
+            Console.Beep(1000, 40);
             return selectedOption;
         }
 
 
-        // EOF :)
     }
 }
