@@ -1,15 +1,19 @@
 ﻿using System;
 
+
+
 namespace Chess
 {
     class Figure
     {       
         public char Symbol { get; private set; }       // Just the first letter in the name of the figure. 
-        private ConsoleColor Color;                    // Black/white color of figure.
-        public char ColorSign { get; private set; }    // To write in data file color of figure.
+        public char ColorSign { get; private set; }    // Storing color of figure in data file.
         public bool isMakeJump = false;                // Crunch. For pawns only.
-
+        private ConsoleColor Color;                    // Black/white color of figure.
         public int MovesCount = 0;
+
+
+
 
         public Figure(char symbol, char colorSign)
         {
@@ -25,6 +29,7 @@ namespace Chess
         public void Draw()
         {            
             ConsoleColor tmpColor = Console.ForegroundColor;
+
             Console.ForegroundColor = Color;
             Console.Write(Symbol + " ");
             Console.ForegroundColor = tmpColor;
@@ -34,6 +39,7 @@ namespace Chess
         public void Draw(int posX, int posY)
         {
             ConsoleColor tmpColor = Console.ForegroundColor;
+
             Console.ForegroundColor = Color;
             Console.SetCursorPosition(posX, posY);
             Console.Write(Symbol + " ");

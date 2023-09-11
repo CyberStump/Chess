@@ -10,7 +10,7 @@ namespace Chess //                                                              
         private static Game MainGame;
         public static string AppVersion { get; private set; } = "v1.0.4(6)";
 
-        readonly static string GamesFilePath = "games.txt";
+        readonly static string GamesFilePath    = "games.txt";
         readonly static string SettingsFilePath = "settings.txt";
         readonly static string LanguageFilePath = "language.txt";
 
@@ -23,9 +23,8 @@ namespace Chess //                                                              
 
         public static ConsoleColor DefaultBackgroundColor { get; private set; } = ConsoleColor.Black;
         public static ConsoleColor DefaultForegroundColor { get; private set; } = ConsoleColor.White;
-                           
-        // Keywords of buttons/fields.
-        private static string[] s_words = new string[30];
+        
+        private static string[] s_words = new string[30]; // Keywords of buttons/fields.
 
         public static Dictionary<string, string> dic_LanguageDic { get; private set; } = new Dictionary<string, string>();
         //private static ConsoleColor[] ColorsPalette = new ConsoleColor[10];
@@ -69,6 +68,7 @@ namespace Chess //                                                              
                 SetLanguage();
                 MainMenu();                
             }
+            Console.SetCursorPosition(0, Console.WindowHeight - 1);
         }
 
 

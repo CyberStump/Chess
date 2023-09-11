@@ -57,12 +57,14 @@ namespace Chess
 
 
 
+
         // Ordinary ClearScreen causes some troubles.
         public static void ClearScreen()
         {   
             Console.SetCursorPosition(0, 0);
             for (int i = 0; i < Console.WindowHeight; i++) 
-                Console.WriteLine(new string(' ', Console.WindowWidth));            
+                Console.WriteLine(new string(' ', Console.WindowWidth)); 
+            
             Console.SetCursorPosition(0, 0);
         }
 
@@ -71,6 +73,7 @@ namespace Chess
             Console.SetCursorPosition(0, startY);
             for (int i = 0; i < count; i++) 
                 Console.WriteLine(new string(' ', Console.WindowWidth));
+
             Console.SetCursorPosition(0, 0);
         }
 

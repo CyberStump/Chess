@@ -1,5 +1,6 @@
 ﻿
 
+
 namespace Chess.Figures
 {
     class King : Figure // Король

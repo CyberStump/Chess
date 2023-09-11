@@ -1,9 +1,9 @@
 ﻿
 
+
 namespace Chess.Figures
-{
-    // Ладья
-    class Rook : Figure
+{    
+    class Rook : Figure // Ладья
     {
         public Rook(char colorSign) : base('R', colorSign)
         {

@@ -1,0 +1,3 @@
+>ENG{newgame-NEW GAME;continue-CONTINUE;settings-SETTINGS;exit-EXIT;language-LANGUAGE;colorsheme-COLOR SHEME;back-BACK;white-WHITE;black-BLACK;move-MOVE;selectfigure-Select figure;winner-Winner;movescount-Moves count;selectcelltomove-Select cell to move;}
+ RUS{newgame-НОВАЯ ИГРА;continue-ПРОДОЛЖИТЬ;settings-НАСТРОЙКИ;exit-ВЫХОД;language-ЯЗЫК;colorsheme-ЦВЕТОВАЯ СХЕМА;back-НАЗАД;white-БЕЛЫЕ;black-ЧЁРНЫЕ;move-ХОД;selectfigure-Выберите фигуру;winner-Победитель;movescount-Количество ходов;selectcelltomove-Выберите клетк для хода;}
+/newgame,continue,settings,exit,language,colorsheme,back,white,black,move,selectfigure,winner,movescount,selectcelltomove,

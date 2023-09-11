@@ -1,5 +1,6 @@
 ﻿
 
+
 namespace Chess.Figures
 {
     class Bishop : Figure // Слон
