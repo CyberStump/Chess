@@ -8,7 +8,7 @@ namespace Chess //                                                              
     class Program : API
     {
         private static Game MainGame;
-        public static string AppVersion { get; private set; } = "v1.0.4(6)";
+        public static string AppVersion { get; private set; } = "v1.0.5(7)";
 
         readonly static string GamesFilePath    = "games.txt";
         readonly static string SettingsFilePath = "settings.txt";
@@ -50,23 +50,25 @@ namespace Chess //                                                              
             Console.WindowWidth = WindowWidth;
             Console.WriteLine();
 
-            return CheckFileExistance(new FileInfo(GamesFilePath)) && CheckFileExistance(new FileInfo(LanguageFilePath));
+            CheckFileExistance(new FileInfo(GamesFilePath), ref check);
+            CheckFileExistance(new FileInfo(LanguageFilePath), ref check);
+
+            return check;
         }
 
-
-        private static bool CheckFileExistance(FileInfo file)
+        
+        private static void CheckFileExistance(FileInfo file, ref bool check)
         {
             Console.Write("    " + file.FullName);
             if (file.Exists)
             {
-                WriteColored("    EXIST\n", ConsoleColor.Green);
-                return true;
+                WriteColored("    EXIST\n", ConsoleColor.Green);                
             }
             else
             {
                 WriteColored("    NOT EXIST\n", ConsoleColor.Red);
+                check = false;
             }
-            return false;
         }
 
 
@@ -101,17 +103,15 @@ namespace Chess //                                                              
                 }
 
                 SetLanguage();
-                MainMenu();                
+                MainMenu();    
+                SeetLanguage();
             }
-            
-            Console.SetCursorPosition(0, Console.WindowHeight - 1);
         }
        
                        
         static void MainMenu()
         {
             bool isExit = false;
-
                         
             do
             {
@@ -150,6 +150,7 @@ namespace Chess //                                                              
             while(!isExit);
 
             ClearScreen();
+            Console.SetCursorPosition(0, 0);
         }
                         
 
@@ -163,10 +164,16 @@ namespace Chess //                                                              
             {                              
                 WriteAtColored(6, 2, dic_LanguageDic["settings"], ConsoleColor.DarkGray);
 
-                switch (SelectionMenuGUI( 8, 4, 1, new string[] {    
-                        dic_LanguageDic["language"]   + ": " + CurrentLanguage,
-                        dic_LanguageDic["colorsheme"] + ": -",
-                        dic_LanguageDic["back"] } )) 
+                switch
+                (
+                    SelectionMenuGUI( 
+                        8, 4, 1, new string[] 
+                        {    
+                            dic_LanguageDic["language"]   + ": " + CurrentLanguage,
+                            dic_LanguageDic["colorsheme"] + ": -",
+                            dic_LanguageDic["back"] 
+                        })
+                ) 
                 {                    
                     case 0:
                         // crunch!
@@ -187,6 +194,30 @@ namespace Chess //                                                              
             }
             while (!isExit);
         }
+
+       
+        static void SeetLanguage()
+        {
+            string langFile = LanguageDataManager.Read();
+            string[] words;
+            int langNumber;
+            int indexInFile;
+
+
+            { 
+                int currentLangNum = langFile.IndexOf('>');  // Will be -1 if there is no selected lang with '>'.
+                langNumber = currentLangNum > 0 ? int.Parse( langFile[currentLangNum + 1].ToString() ) : 1;
+            }
+            
+            indexInFile = langFile.IndexOf("====");
+            char x = langFile[indexInFile+5];
+            while(true)
+            {
+
+            }
+            
+        }
+
 
 
         // FIX FIX FIX FIX FIX FIX FIX FIX FIX FIX FIX FIX FIX FIX FIX FIX

@@ -13,7 +13,7 @@ namespace Chess
             FileInfo dataFile = new FileInfo(Path);
 
             if (!dataFile.Exists)
-                throw new FileNotFoundException("DataManager(): file " + Path + " doesn't exists! ");
+                throw new FileNotFoundException(" DataManager(): file " + Path + " doesn't exists! ");
         }        
 
 
