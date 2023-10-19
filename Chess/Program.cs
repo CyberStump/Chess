@@ -205,23 +205,22 @@ namespace Chess //                                                              
         static void SeetLanguage()
         {
             string langFileText = LanguageDataManager.Read();
-            string[] tmp_words = new string[] { };
-            int langNumber;
-            int indexInFile;
+            
 
 
             langFileText = langFileText.Replace("\r", "");
+            int.TryParse( langFileText.Substring(langFileText.IndexOf("<=") - 4, 1), out int langNumber);
             dic_AllLanguagesDic.Clear();
-            {
-                // Will be -1 if there is no selected lang with '<='.
-                int currentLangIndex = langFileText.IndexOf("<=") - 4;  
-                langNumber = currentLangIndex > 0 ? int.Parse( langFileText[currentLangIndex + 1].ToString() ) : 1;
+
+            {                
+                //int.TryParse(langFileText.Substring(langFileText.IndexOf("========__"), 1), out int _langCount);
+                //tmp_words = new string[_langCount];
             }
 
-            indexInFile = langFileText.IndexOf("========__");
-            langFileText = langFileText.Substring(indexInFile);
+            langFileText = langFileText.Substring(langFileText.IndexOf("========__"));
             do
             {
+                string[] tmp_words = new string[5];
                 int i = 0;
 
                 langFileText = langFileText.Substring(11); // Erase separator
@@ -229,12 +228,11 @@ namespace Chess //                                                              
                 dic_AllLanguagesDic.Add(keyWord, null);
                 langFileText = langFileText.Substring(langFileText.IndexOf('\n') + 1); // Erase keyword
                 do
-                {                    
+                {
                     tmp_words[i] = langFileText.Substring(0, langFileText.IndexOf('\n'));
-                    int x = langFileText.IndexOf('\n') + 1;
                     langFileText = langFileText.Substring(langFileText.IndexOf('\n') + 1);
                     i++;
-
+                    if (langFileText.Substring(0, 9).Contains("=EOF=EOF=")) break;
                 } // crunch
                 while (!langFileText.Substring(0, langFileText.IndexOf('\n')).Contains("========__"));
                 dic_AllLanguagesDic[keyWord] = tmp_words;
