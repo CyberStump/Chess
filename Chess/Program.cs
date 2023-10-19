@@ -12,7 +12,7 @@ namespace Chess //                                                              
 
         readonly static string GamesFilePath    = "games.txt";
         readonly static string SettingsFilePath = "settings.txt";
-        readonly static string LanguageFilePath = "language.txt";
+        readonly static string LanguageFilePath = "lang_new.txt";
 
         private static DataManager GamesDataManager;
         private static DataManager SettingsDataManager;
@@ -26,7 +26,8 @@ namespace Chess //                                                              
         
         private static string[] s_words = new string[30]; // Keywords of buttons/fields.
 
-        public static Dictionary<string, string> dic_LanguageDic { get; private set; } = new Dictionary<string, string>();
+        public static Dictionary<string, string> dic_CurrentLanguageDic { get; private set; } = new Dictionary<string, string>();
+        public static Dictionary<string, string[]> dic_AllLanguagesDic { get; private set; } = new Dictionary<string, string[]>();
         //private static ConsoleColor[] ColorsPalette = new ConsoleColor[10];
 
         private static string CurrentLanguage
@@ -62,12 +63,12 @@ namespace Chess //                                                              
             Console.Write("    " + file.FullName);
             if (file.Exists)
             {
-                WriteColored("    EXIST\n", ConsoleColor.Green);                
+                WriteColored("    EXIST\n", ConsoleColor.Green);
+                check = true;
             }
             else
             {
                 WriteColored("    NOT EXIST\n", ConsoleColor.Red);
-                check = false;
             }
         }
 
@@ -87,24 +88,29 @@ namespace Chess //                                                              
 
             if (BIOS())
             {
-                GamesDataManager    = new DataManager(GamesFilePath);
+                GamesDataManager = new DataManager(GamesFilePath);
                 SettingsDataManager = new DataManager(SettingsFilePath);
                 LanguageDataManager = new DataManager(LanguageFilePath);
 
                 string languageTextFromData = LanguageDataManager.Read();
                 languageTextFromData = languageTextFromData.Substring(languageTextFromData.IndexOf('/') + 1);
-                
+
                 int i = 0;
-                while(languageTextFromData != "") // Filling keywords from language data file.
+                /*while (languageTextFromData != "") // Filling keywords from language data file.
                 {
-                    s_words[i] = languageTextFromData.Substring(0, languageTextFromData.IndexOf(',')); 
+                    s_words[i] = languageTextFromData.Substring(0, languageTextFromData.IndexOf(','));
                     languageTextFromData = languageTextFromData.Substring(languageTextFromData.IndexOf(',') + 1);
                     i++;
-                }
+                }*/
+                SeetLanguage();
 
                 SetLanguage();
-                MainMenu();    
-                SeetLanguage();
+                MainMenu();
+
+            }
+            else
+            {
+                Console.ReadLine();
             }
         }
        
@@ -124,10 +130,10 @@ namespace Chess //                                                              
                     SelectionMenuGUI(   
                         51, 10, 2, new string[] 
                         { 
-                            dic_LanguageDic["continue"],
-                            dic_LanguageDic["newgame"],
-                            dic_LanguageDic["settings"],
-                            dic_LanguageDic["exit"] 
+                            dic_CurrentLanguageDic["continue"],
+                            dic_CurrentLanguageDic["newgame"],
+                            dic_CurrentLanguageDic["settings"],
+                            dic_CurrentLanguageDic["exit"] 
                         })
                 )
                 {
@@ -162,16 +168,16 @@ namespace Chess //                                                              
             ClearScreen();
             do 
             {                              
-                WriteAtColored(6, 2, dic_LanguageDic["settings"], ConsoleColor.DarkGray);
+                WriteAtColored(6, 2, dic_CurrentLanguageDic["settings"], ConsoleColor.DarkGray);
 
                 switch
                 (
                     SelectionMenuGUI( 
                         8, 4, 1, new string[] 
                         {    
-                            dic_LanguageDic["language"]   + ": " + CurrentLanguage,
-                            dic_LanguageDic["colorsheme"] + ": -",
-                            dic_LanguageDic["back"] 
+                            dic_CurrentLanguageDic["language"]   + ": " + CurrentLanguage,
+                            dic_CurrentLanguageDic["colorsheme"] + ": -",
+                            dic_CurrentLanguageDic["back"] 
                         })
                 ) 
                 {                    
@@ -198,24 +204,44 @@ namespace Chess //                                                              
        
         static void SeetLanguage()
         {
-            string langFile = LanguageDataManager.Read();
-            string[] words;
+            string langFileText = LanguageDataManager.Read();
+            string[] tmp_words = new string[] { };
             int langNumber;
             int indexInFile;
 
 
-            { 
-                int currentLangNum = langFile.IndexOf('>');  // Will be -1 if there is no selected lang with '>'.
-                langNumber = currentLangNum > 0 ? int.Parse( langFile[currentLangNum + 1].ToString() ) : 1;
-            }
-            
-            indexInFile = langFile.IndexOf("====");
-            char x = langFile[indexInFile+5];
-            while(true)
+            langFileText = langFileText.Replace("\r", "");
+            dic_AllLanguagesDic.Clear();
             {
-
+                // Will be -1 if there is no selected lang with '<='.
+                int currentLangIndex = langFileText.IndexOf("<=") - 4;  
+                langNumber = currentLangIndex > 0 ? int.Parse( langFileText[currentLangIndex + 1].ToString() ) : 1;
             }
-            
+
+            indexInFile = langFileText.IndexOf("========__");
+            langFileText = langFileText.Substring(indexInFile);
+            do
+            {
+                int i = 0;
+
+                langFileText = langFileText.Substring(11); // Erase separator
+                string keyWord = langFileText.Substring(0, langFileText.IndexOf('\n'));
+                dic_AllLanguagesDic.Add(keyWord, null);
+                langFileText = langFileText.Substring(langFileText.IndexOf('\n') + 1); // Erase keyword
+                do
+                {                    
+                    tmp_words[i] = langFileText.Substring(0, langFileText.IndexOf('\n'));
+                    int x = langFileText.IndexOf('\n') + 1;
+                    langFileText = langFileText.Substring(langFileText.IndexOf('\n') + 1);
+                    i++;
+
+                } // crunch
+                while (!langFileText.Substring(0, langFileText.IndexOf('\n')).Contains("========__"));
+                dic_AllLanguagesDic[keyWord] = tmp_words;
+            }
+            while (langFileText.Contains("========__"));
+
+
         }
 
 
@@ -245,7 +271,7 @@ namespace Chess //                                                              
             char symbol = ' ';
 
 
-            dic_LanguageDic.Clear();
+            dic_CurrentLanguageDic.Clear();
 
             s_LanguageFileText    = LanguageDataManager.Read();
             s_CurrentLanguageText = "";            
@@ -277,7 +303,7 @@ namespace Chess //                                                              
                         word += s_CurrentLanguageText[index2];
                         index2++;
                     }
-                    dic_LanguageDic.Add(key, word);
+                    dic_CurrentLanguageDic.Add(key, word);
                 }                
             }
         }

@@ -83,7 +83,7 @@ namespace Chess
             // Select figure to move
             do
             {
-                WriteAt(BoardStartCoordX + 22, BoardStartCoordY + 2, Program.dic_LanguageDic["selectfigure"]);
+                WriteAt(BoardStartCoordX + 22, BoardStartCoordY + 2, Program.dic_CurrentLanguageDic["selectfigure"]);
                 
                 FigureCoord = SelectCell();
                 if (FigureCoord[0] != -1)
@@ -636,19 +636,19 @@ namespace Chess
         private void ShowWinScreen(char winner)
         {
             ClearScreen();
-            WriteAt(4, 2, Program.dic_LanguageDic["winner"] + ":");
+            WriteAt(4, 2, Program.dic_CurrentLanguageDic["winner"] + ":");
             
             switch (winner)
             {
                 case 'W':
-                    WriteAt(16, 2, Program.dic_LanguageDic["white"]);
+                    WriteAt(16, 2, Program.dic_CurrentLanguageDic["white"]);
                     break;
                 case 'B':
-                    WriteAt(16, 2, Program.dic_LanguageDic["black"]);
+                    WriteAt(16, 2, Program.dic_CurrentLanguageDic["black"]);
                     break;
             }
 
-            WriteAt(4, 3, Program.dic_LanguageDic["movescount"] + ":");
+            WriteAt(4, 3, Program.dic_CurrentLanguageDic["movescount"] + ":");
             WriteAt(21, 3, MoveCount.ToString());
 
             Console.ReadKey();
@@ -662,15 +662,15 @@ namespace Chess
             switch (CurrentColorMove)
             {
                 case 'B': // Black move
-                    WriteAt(BoardStartCoordX + 22, BoardStartCoordY, Program.dic_LanguageDic["move"] + ": " + Program.dic_LanguageDic["black"]);
+                    WriteAt(BoardStartCoordX + 22, BoardStartCoordY, Program.dic_CurrentLanguageDic["move"] + ": " + Program.dic_CurrentLanguageDic["black"]);
                     break;
                 case 'W': // White move
-                    WriteAt(BoardStartCoordX + 22, BoardStartCoordY, Program.dic_LanguageDic["move"] + ": " + Program.dic_LanguageDic["white"]);
+                    WriteAt(BoardStartCoordX + 22, BoardStartCoordY, Program.dic_CurrentLanguageDic["move"] + ": " + Program.dic_CurrentLanguageDic["white"]);
                     break;
             } 
 
             WriteAt(BoardStartCoordX + 22, BoardStartCoordY + 4, TargetedCellSign);
-            WriteAt(BoardStartCoordX + 22, BoardStartCoordY + 6, Program.dic_LanguageDic["movescount"] + ": " + MoveCount.ToString());
+            WriteAt(BoardStartCoordX + 22, BoardStartCoordY + 6, Program.dic_CurrentLanguageDic["movescount"] + ": " + MoveCount.ToString());
         }
 
 

@@ -1,0 +1,62 @@
+1ENG
+2RUS
+3ESP
+4FRA
+5DEU
+========__
+continue
+continue
+продолжить
+========__
+newgame
+newgame
+новая игра
+========__
+settings
+settings
+настройки
+========__
+exit
+exit
+выход
+========__
+language
+language
+язык
+========__
+colorsheme
+color sheme
+цветовая схема
+========__
+back
+back
+назад
+========__
+white
+white
+белый
+========__
+black
+black
+чёрный
+========__
+move
+move
+ход
+========__
+selectfigure
+select figure
+выбрать фигуру
+========__
+winner
+winner
+победитель
+========__
+movescount
+moves count
+количество ходов
+========__
+selectcelltomove
+select cell to move
+выберите клетку для хода
+=EOF=EOF=
